@@ -127,57 +127,59 @@ my %numbers = (1 => (" .----------------. ",
   "         ") 
  );
 
-
 # Send control sequences to set up the terminal
 #print "\e[?1049h"; # Enable alternate screen buffer
   #print "\e[?25l";   # Hide cursor
 # Display a simple interface
 #print "\e[H";      # Move cursor to top left corner
-sub digitsplit {
-    my @dave;
-    my @times = @_;
-    foreach my $time (@times){
-        my @digits = split //, $time;
-        foreach my $digit (@digits){
-            if (exists $numbers{$digit}) {
-              foreach my $line ($numbers{$digit}){
-                
-            } else {
-                push @dave, "unknown";  # Or some other placeholder value
-            }
-        } 
-        if (exists $numbers{10}) {
-            push @dave, $numbers{10};
-        } else {
-            push @dave, "unknown";  # Or some other placeholder value
-        }
-    }
-    return @dave;
-}
-
-
-
-my ($sec, $min, $hour) = localtime(time);
-my @time = ($hour, $min, $sec);
-my @curr = digitsplit(@time);
-
 =pod
+  sub split_digit {
+    my @time;
+    my @nums = @_;
+    foreach my $t (@nums){
+      my @digits = split(//, $t);
+      foreach my $digit (@digits){
+        if (exists @numbers{$digit}){
+          push @time, @numbers{$digit};
+        } 
+        else {
+          print $digit, "unknown";
+        }
+      }
+      push @time, @numbers{10};
+      }
+    }
+    return @time;
+  }
+  sub print_time {
+    my @time = @_;
+    my $len = scalar @time[0];
+    for my $row (0 .. $len-1){
+      for my $num (0 .. $#time){
+        print "$time[$num][$row]";
+      }
+    }
+
+  }
+  my ($sec, $min, $hour) = localtime(time);
+  my @time = ($hour, $min, $sec);
+  my @curr = print_time(split_digit(@time));
+
+=cut
 
 
 print "Welcome to My Perl App\n";
 print "Press q to quit\n\n";
 my $input = '';
 while ($input ne 'q') {
-  my @curr = digitsplit($hour, $min, $sec);
-  print "(@curr[0][5])";
-  my $len = scalar @curr;
+  my $len = scalar $numbers{1};
+  
+  my @number = @numbers{1};
   for my $row (0 .. $len-1){
-    for my $num (0 .. $#curr){
-      my $n = $curr[$num][$row];
+      my $n = $number[$row];
       print "$n";
-      }
       print "\n";
-    }
+  }
   print "Enter something: ";
   $input = <STDIN>;
   chomp $input;
@@ -185,7 +187,6 @@ while ($input ne 'q') {
   sleep(1);
   next;
 }
-=cut
 
 # Restore terminal to its original state
 #print "\e[?25h";   # Show cursor
